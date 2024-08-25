@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from .models import User
 from .serializers import UserSerializer
@@ -6,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import generics
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your views here.
@@ -26,23 +26,27 @@ class RegisterView(APIView):
 
                 # Generate tokens
                 refresh = RefreshToken.for_user(user)
-                tokens = {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
+                access_token = str(refresh.access_token)
+                refresh_token = str(refresh)
+                
+                # Generate custom token data
+                token_serializer = MyTokenObtainPairSerializer.get_token(user)
+                custom_data = {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'username': user.username,
+                    'email': user.email,
+                    'profile_pic': user.profile_pic.url if user.profile_pic else None,
                 }
 
-                # Construct the response data with user details
                 response_data = {
-                    'user': {
-                        'first_name': user.first_name,
-                        'last_name': user.last_name,
-                        'username': user.username,
-                        'email': user.email,
-                        'profile_pic': user.profile_pic.url if user.profile_pic else None,
+                    'user': serializer.data,
+                    'tokens': {
+                        'refresh': refresh_token,
+                        'access': access_token
                     },
-                    'tokens': tokens
+                    'custom_data': custom_data
                 }
-
                 return Response(response_data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -52,7 +56,6 @@ class RegisterView(APIView):
                 "message": "Bad request"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -63,11 +66,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['last_name'] = user.last_name
         token['username'] = user.username
         token['email'] = user.email
-
         if user.profile_pic and hasattr(user.profile_pic, 'url'):
             token['profile_pic'] = user.profile_pic.url
-
-        # print(token)
 
         return token
 

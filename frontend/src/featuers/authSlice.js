@@ -44,14 +44,11 @@ export const registerUser = createAsyncThunk("auth/registerUser", async (userDat
             body: userData,
         });
         const data = await response.json();
-        // console.log(data);
+        console.log(data);
 
         if (response.ok) {
             localStorage.setItem("access_token", data.tokens.access);
             localStorage.setItem("refresh_token", data.tokens.refresh);
-            
-            console.log('Access: ', data.tokens.access);
-            console.log('Refresh: ', data.tokens.refresh);
 
             return {
                 access_token: data.tokens.access,
