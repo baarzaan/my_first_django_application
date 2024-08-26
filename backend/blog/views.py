@@ -5,6 +5,7 @@ from .serializers import BlogSerializer, CommentSerializer, LikeSerializer
 from .models import Blog, Comment, Like
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class BlogsView(APIView):
@@ -18,12 +19,19 @@ class CreateBlogView(APIView):
         try:
             data = request.data
             serializer = BlogSerializer(data=data)
+            data['author'] = request.user.id # Set the author to the currently authenticated user
+            # print(data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({
                     'data': serializer.data,
                     'message': 'Blog created',
                 }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    'data': None,
+                    'message': 'Invalid data'
+                }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
             return Response({
@@ -36,6 +44,7 @@ class UpdateBlogView(APIView):
         try:
             instance = get_object_or_404(Blog, pk=pk)
             data = request.data
+            data['author'] = request.user.id # Set the author to the currently authenticated user
             serializer = BlogSerializer(instance, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()   
@@ -70,6 +79,7 @@ class CreateCommentView(APIView):
     def post(self, request):
         try:
             data = request.data
+            data['author'] = request.user.id # Set the author to the currently authenticated user
             serializer = CommentSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -86,7 +96,9 @@ class UpdateCommentView(APIView):
     def patch(self, request, pk):
         try:
             comment = get_object_or_404(Comment, pk=pk)
-            serializer = CommentSerializer(comment, data=request.data, partial=True)
+            data = request.data
+            data['author'] = request.user.id # Set the author to the currently authenticated user
+            serializer = CommentSerializer(comment, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status.HTTP_200_OK)
@@ -122,6 +134,7 @@ class AddLikeView(APIView):
     def post(self, request):
         try:
             data = request.data
+            data['author'] = request.user.id # Set the author to the currently authenticated user
             serializer = LikeSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -131,17 +144,30 @@ class AddLikeView(APIView):
                 'data': None,
                 'message': 'Like not added!'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
-class DeleteLikeView(APIView):
-    def delete(self, request, pk):
-        try:
-            like = get_object_or_404(Like, pk=pk)
+
+class LikeBlogView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, blog_id):
+        blog = Blog.objects.get(id=blog_id)
+        data = request.data
+        data['user'] = request.user.id
+        data['blog'] = blog.id
+        print(data)
+        serializer = LikeSerializer(data=data, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Blog liked"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, blog_id):
+        blog = Blog.objects.get(id=blog_id)
+        like = Like.objects.filter(user=request.user, blog=blog).first()
+
+        if like:
             like.delete()
-            return Response({
-                'data': 'Success',
-            }, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({
-                'data': None,
-                'message': 'Like not deleted!'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Blog unliked."}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"error": "Like not found."}, status=status.HTTP_404_NOT_FOUND)

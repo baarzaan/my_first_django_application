@@ -10,6 +10,7 @@ class BasicModels(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['-created_at']
 
 class Blog(BasicModels):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -30,5 +31,8 @@ class Comment(BasicModels):
         return self.body[0:50]
 
 class Like(BasicModels):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'blog')
