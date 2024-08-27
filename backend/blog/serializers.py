@@ -26,7 +26,7 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 class LikeSerializer(serializers.ModelSerializer):
-    user = UserInfoSerializer(read_only=True)
+    user = UserInfoSerializer(read_only=True)  # Ensure user info is read-only
 
     class Meta:
         model = Like
@@ -35,10 +35,12 @@ class LikeSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         user = self.context['request'].user
+        blog = attrs['blog']
+
         if user.is_anonymous:
             raise serializers.ValidationError("User must be authenticated.")
-        blog = attrs['blog']
 
         if Like.objects.filter(user=user, blog=blog).exists():
             raise serializers.ValidationError("You have already liked this blog.")
+
         return attrs

@@ -3,13 +3,14 @@ import { routes } from "./routes/Routes"
 import Header from "./components/Header"
 import { useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { getBlogs } from "./featuers/blogSlice"
+import { getBlogs, getComments } from "./featuers/blogSlice"
 
 function App() {
   const dispacth = useDispatch();
 
   useEffect(() => {
     dispacth(getBlogs());
+    dispacth(getComments());
   }, [dispacth]);
 
   return (

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BlogsView, CreateBlogView, UpdateBlogView, DeleteBlogView, CommentsView, CreateCommentView, UpdateCommentView, DeleteCommentView, LikesView, AddLikeView, LikeBlogView
+from .views import BlogsView, CreateBlogView, UpdateBlogView, DeleteBlogView, CommentsView, CreateCommentView, UpdateCommentView, DeleteCommentView, LikesView, LikeBlogView
 
 urlpatterns = [
     path("", BlogsView.as_view(), name="blogs"),
@@ -12,5 +12,4 @@ urlpatterns = [
     path("delete-comment/<str:pk>/", DeleteCommentView.as_view(), name="delete-comment"),
     path("blog/<str:blog_id>/like", LikeBlogView.as_view(), name="like-blog"),
     path("likes/", LikesView.as_view(), name="likes"),
-    path("add-like/", AddLikeView.as_view(), name="add-like"),
 ]

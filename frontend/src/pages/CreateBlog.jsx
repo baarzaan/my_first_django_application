@@ -22,7 +22,7 @@ const CreateBlog = () => {
 
   const handleCreateBlog = () => {
     try {
-      if (image && title.trim() != "" && body.trim() != "") {
+      if (image && title.trim() !== "" && body.trim() !== "") {
         const formData = new FormData();
         formData.append("author", user.user_id);
         formData.append("title", title);

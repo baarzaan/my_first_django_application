@@ -27,8 +27,12 @@ export const getBlogs = createAsyncThunk("blog/getBlogs", async (_, { rejectWith
 
 export const createBlog = createAsyncThunk("blog/createBlog", async (blogData, { rejectWithValue }) => {
     try {
+        const accessToken = localStorage.getItem("access_token");
         const response = await fetch('http://127.0.0.1:8000/api/blogs/create-blog/', {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
             body: blogData,
         });
         // Check if the response is OK (status 200-299)
@@ -76,7 +80,7 @@ export const toggleLike = createAsyncThunk(
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: isLiked ? null : JSON.stringify({ user: userId, blog: blogId })
+                body: !isLiked && JSON.stringify({ user: userId, blog: blogId })
             });
             console.log({ user: userId, blog: blogId });
 
@@ -94,6 +98,84 @@ export const toggleLike = createAsyncThunk(
     }
 );
 
+export const createComment = createAsyncThunk("blog/createComment", async (commentData, { rejectWithValue }) => {
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const response = await fetch('http://127.0.0.1:8000/api/blogs/create-comment/', {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: commentData,
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            return data;
+        } else {
+            return rejectWithValue("Error!, check your internet.");
+        }
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+export const deleteBlog = createAsyncThunk("blog/deleteBlog", async (id, { rejectWithValue }) => {
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const response = await fetch(`http://127.0.0.1:8000/api/blogs/delete-blog/${id}/`, {
+            method: "DELETE",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        if (response.ok) {
+            console.log("Blog deleted: ", id);
+        } else {
+            return rejectWithValue("Error!, check your internet.");
+        }
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+export const deleteComment = createAsyncThunk("blog/deleteComment", async (id, { rejectWithValue }) => {
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const response = await fetch(`http://127.0.0.1:8000/api/blogs/delete-comment/${id}/`, {
+            method: "DELETE",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        if (response.ok) {
+            console.log("Comment deleted: ", id);
+        } else {
+            return rejectWithValue("Error!, check your internet.");
+        }
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
+
+export const getComments = createAsyncThunk("blog/getComments", async (_, { rejectWithValue }) => {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/blogs/comments/", {
+            method: "GET",
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            return data;
+        } else {
+            return rejectWithValue("Error!, check your internet.");
+        }
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+})
 
 const blogSlice = createSlice({
     name: "blog",
@@ -147,6 +229,54 @@ const blogSlice = createSlice({
             state.status = 'fail';
             state.error = action.payload;
         });
+
+        builder.addCase(createComment.pending, (state) => {
+            state.status = 'loading';
+        });
+        builder.addCase(createComment.fulfilled, (state, action) => {
+            state.status = 'success';
+            state.comments = action.payload;
+        });
+        builder.addCase(createComment.rejected, (state, action) => {
+            state.status = 'loading';
+            state.error = action.payload;
+        });
+
+        builder.addCase(getComments.pending, (state) => {
+            state.status = 'loading';
+        });
+        builder.addCase(getComments.fulfilled, (state, action) => {
+            state.status = 'success';
+            state.comments = action.payload;
+        });
+        builder.addCase(getComments.rejected, (state, action) => {
+            state.status = 'loading';
+            state.error = action.payload;
+        });
+
+        builder.addCase(deleteBlog.pending, (state) => {
+            state.status = 'loading';
+        });
+        builder.addCase(deleteBlog.fulfilled, (state, action) => {
+            state.status = 'success';
+            state.comments = action.payload;
+        });
+        builder.addCase(deleteBlog.rejected, (state, action) => {
+            state.status = 'loading';
+            state.error = action.payload;
+        });
+
+        builder.addCase(deleteComment.pending, (state) => {
+            state.status = 'loading';
+        });
+        builder.addCase(deleteComment.fulfilled, (state, action) => {
+            state.status = 'success';
+            state.comments = action.payload;
+        });
+        builder.addCase(deleteComment.rejected, (state, action) => {
+            state.status = 'loading';
+            state.error = action.payload;
+        });
     }
 });
 
@@ -154,5 +284,6 @@ export const setStatus = state => state.blog.status;
 export const setBlogs = state => state.blog.blogs;
 export const setError = state => state.blog.error;
 export const setLikes = state => state.blog.likes;
+export const setComments = state => state.blog.comments;
 
 export default blogSlice.reducer;

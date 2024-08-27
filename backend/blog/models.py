@@ -22,10 +22,10 @@ class Blog(BasicModels):
         return self.title
 
 class Comment(BasicModels):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
     body = models.TextField()
-    image = models.ImageField("comments/", null=True, blank=True)
+    image = models.ImageField("comments/")
 
     def __str__(self):
         return self.body[0:50]

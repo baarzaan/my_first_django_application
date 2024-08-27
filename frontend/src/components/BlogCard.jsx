@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getLikes, setLikes, toggleLike } from "../featuers/blogSlice";
+import {
+  deleteBlog,
+  getLikes,
+  setComments,
+  setLikes,
+  toggleLike,
+} from "../featuers/blogSlice";
 import { setUser } from "../featuers/authSlice";
 
 const BlogCard = ({ blog }) => {
@@ -12,8 +18,9 @@ const BlogCard = ({ blog }) => {
   // const [isLiked, setIsLiked] = useState(false);
   const likes = useSelector(setLikes);
   const isLiked = likes.some(
-    (like) => like.blog === blog.id && like.user === user.user_id
+    (like) => like.blog === blog.id && like.user === user?.user_id
   );
+  const comments = useSelector(setComments);
 
   useEffect(() => {
     dispatch(getLikes());
@@ -24,11 +31,6 @@ const BlogCard = ({ blog }) => {
   const handleClickBlogImage = (selectedBlog) => {
     setSelectedBlog(selectedBlog);
     setShowBlogImage(true);
-  };
-
-  const handleLikeClick = () => {
-    dispatch(toggleLike({ blogId: blog.id, userId: user?.user_id, isLiked }));
-    // console.log({ blog: blog.id, user: user.user_id });
   };
 
   return (
@@ -47,9 +49,11 @@ const BlogCard = ({ blog }) => {
             <strong>{blog.author.username}</strong>
           </Link>
 
-          <div className="flex justify-center items-center gap-2">
-            <button>More</button>
-          </div>
+          {blog.author.id === user?.user_id && (
+            <button onClick={() => dispatch(deleteBlog(blog.id))}>
+              Delete
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col justify-start items-start gap-2">
@@ -66,7 +70,10 @@ const BlogCard = ({ blog }) => {
           />
 
           {showBlogImage && (
-            <div className="fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-full h-screen bg-white/50 backdrop-blur-lg">
+            <div
+              onClick={() => setShowBlogImage(false)}
+              className="fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-full h-screen bg-white/50 backdrop-blur-lg"
+            >
               <button
                 className="p-4 text-3xl"
                 onClick={() => setShowBlogImage(false)}
@@ -74,14 +81,30 @@ const BlogCard = ({ blog }) => {
               >
                 X
               </button>
-              <div className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+              <div
+                className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <img src={`http://127.0.0.1:8000${blog.image}`} alt="" />
               </div>
             </div>
           )}
 
-          <p>{likes.filter((like) => like.blog === blog.id).length} likes</p>
-          <button onClick={handleLikeClick}>
+          <div className="flex justify-center items-center gap-3">
+            <p>{likes.filter((like) => like.blog === blog.id).length} likes</p>
+            <p>*</p>
+            <p>
+              {comments.filter((comment) => comment.blog === blog.id).length}{" "}
+              comments
+            </p>
+          </div>
+          <button
+            onClick={() =>
+              dispatch(
+                toggleLike({ blogId: blog.id, userId: user?.user_id, isLiked })
+              )
+            }
+          >
             {likes.find(
               (like) => like.blog === blog.id && like.user.id === user.user_id
             )
