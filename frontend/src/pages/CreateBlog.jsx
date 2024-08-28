@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../featuers/authSlice";
+import { selectedUser } from "../featuers/authSlice";
 import { useNavigate } from "react-router-dom";
 import { createBlog, setError, setStatus } from "../featuers/blogSlice";
 
 const CreateBlog = () => {
   const dispatch = useDispatch();
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const status = useSelector(setStatus);
   const error = useSelector(setError);
   const [image, setImage] = useState(null);

@@ -22,3 +22,10 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.ImageField(required=False)
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'profile_pic']

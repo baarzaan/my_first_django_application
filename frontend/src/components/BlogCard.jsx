@@ -8,11 +8,11 @@ import {
   setLikes,
   toggleLike,
 } from "../featuers/blogSlice";
-import { setUser } from "../featuers/authSlice";
+import { selectedUser } from "../featuers/authSlice";
 
 const BlogCard = ({ blog }) => {
   const dispatch = useDispatch();
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const [showBlogImage, setShowBlogImage] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState(null);
   // const [isLiked, setIsLiked] = useState(false);
@@ -26,7 +26,7 @@ const BlogCard = ({ blog }) => {
     dispatch(getLikes());
   }, [dispatch]);
 
-  useEffect(() => {}, [likes, blog.id, user.user_id]);
+  useEffect(() => {}, [likes, blog.id, user?.user_id]);
 
   const handleClickBlogImage = (selectedBlog) => {
     setSelectedBlog(selectedBlog);
@@ -35,7 +35,7 @@ const BlogCard = ({ blog }) => {
 
   return (
     <div className="flex w-full border-b pb-2">
-      <Link to={`/@${blog.author.username}`}>
+      <Link to={`/profile/${blog.author.username}`}>
         <img
           src={`http://127.0.0.1:8000${blog.author.profile_pic}`}
           className="w-10 h-10 object-cover rounded-full"
@@ -45,7 +45,7 @@ const BlogCard = ({ blog }) => {
 
       <div className="flex flex-col justify-start items-start gap-2 px-2 w-full">
         <div className="flex justify-between items-center w-full">
-          <Link to={`/@${blog.author.username}`}>
+          <Link to={`/profile/${blog.author.username}`}>
             <strong>{blog.author.username}</strong>
           </Link>
 
@@ -98,19 +98,27 @@ const BlogCard = ({ blog }) => {
               comments
             </p>
           </div>
-          <button
-            onClick={() =>
-              dispatch(
-                toggleLike({ blogId: blog.id, userId: user?.user_id, isLiked })
+
+          <div className="flex justify-center items-center gap-3">
+            <button
+              onClick={() =>
+                dispatch(
+                  toggleLike({
+                    blogId: blog.id,
+                    userId: user?.user_id,
+                    isLiked,
+                  })
+                )
+              }
+            >
+              {likes.find(
+                (like) => like.blog === blog.id && like.user.id === user.user_id
               )
-            }
-          >
-            {likes.find(
-              (like) => like.blog === blog.id && like.user.id === user.user_id
-            )
-              ? "Unlike"
-              : "Like"}
-          </button>
+                ? "Unlike"
+                : "Like"}
+            </button>
+            <Link to={`/blog/${blog.id}`}>Comment</Link>
+          </div>
         </div>
       </div>
     </div>

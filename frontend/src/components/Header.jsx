@@ -1,10 +1,10 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { setUser } from "../featuers/authSlice";
+import { selectedUser } from "../featuers/authSlice";
 import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const location = useLocation();
 
   if (
@@ -38,7 +38,7 @@ const Header = () => {
 
       <div>
         {user ? (
-          <Link to={`/@${user.username}`}>
+          <Link to={`/profile/${user.username}`}>
             <img
               src={`http://127.0.0.1:8000${user.profile_pic}`}
               alt="User profile picture"
@@ -48,7 +48,7 @@ const Header = () => {
         ) : (
           <Link
             to="/login"
-            className="py-1 px-3 border-blue-600 text-blue-600 transform transition-all ease-in-out duration-200 hover:text-white hover:bg-blue-600 active:scale-95"
+            className="py-1 px-3 border border-blue-600 text-blue-600 transform transition-all ease-in-out duration-200 hover:text-white hover:bg-blue-600 active:scale-95"
           >
             Login
           </Link>

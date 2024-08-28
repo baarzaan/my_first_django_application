@@ -1,13 +1,12 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser, setUser } from "../featuers/authSlice";
+import { selectedUser } from "../featuers/authSlice";
 import { setBlogs } from "../featuers/blogSlice";
-import { Link } from "react-router-dom";
 import BlogCard from "../components/BlogCard";
 
 const HomePage = () => {
   const dispatch = useDispatch();
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const blogs = useSelector(setBlogs);
 
   return (

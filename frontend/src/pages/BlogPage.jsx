@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getComments, setBlogs, setComments } from "../featuers/blogSlice";
-import { setUser } from "../featuers/authSlice";
+import { selectedUser } from "../featuers/authSlice";
 import BlogCard from "../components/BlogCard";
 import CommentForm from "../components/CommentForm";
 import CommentCard from "../components/CommentCard";
@@ -10,7 +10,7 @@ import CommentCard from "../components/CommentCard";
 const BlogPage = () => {
   const dispatch = useDispatch();
   const blogs = useSelector(setBlogs);
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const { blogId } = useParams();
   const [blog, setBlog] = useState(null);
   const navigate = useNavigate();

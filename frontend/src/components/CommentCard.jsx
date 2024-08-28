@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { setUser } from "../featuers/authSlice";
+import { selectedUser } from "../featuers/authSlice";
 import { deleteComment } from "../featuers/blogSlice";
 
 const CommentCard = ({ comment }) => {
   const dispatch = useDispatch();
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const [showCommentImage, setShowCommentImage] = useState(false);
   const [selectedComment, setSelectedComment] = useState(null);
 
@@ -17,7 +17,7 @@ const CommentCard = ({ comment }) => {
 
   return (
     <div className="flex w-full border-b last:border-none pb-2">
-      <Link to={`/@${comment.author.username}`}>
+      <Link to={`/profile/${comment.author.username}`}>
         <img
           src={`http://127.0.0.1:8000${comment.author.profile_pic}`}
           className="w-10 h-10 object-cover rounded-full"
@@ -27,7 +27,7 @@ const CommentCard = ({ comment }) => {
 
       <div className="flex flex-col justify-start items-start gap-2 px-2 w-full">
         <div className="flex justify-between items-center w-full">
-          <Link to={`/@${comment.author.username}`}>
+          <Link to={`/profile/${comment.author.username}`}>
             <strong>{comment.author.username}</strong>
           </Link>
 

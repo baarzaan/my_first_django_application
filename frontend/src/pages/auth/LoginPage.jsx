@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   loginUser,
+  selectedUser,
   setError,
   setStatus,
-  setUser,
 } from "../../featuers/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,7 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const dispatch = useDispatch();
   const status = useSelector(setStatus);
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const error = useSelector(setError);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -26,8 +26,7 @@ const LoginPage = () => {
   const handleLoginUser = () => {
     try {
       if (email.trim() != "" && password.trim() != "") {
-        const userData = { email, password };
-        dispatch(loginUser(userData));
+        dispatch(loginUser({ email, password }));
       } else {
         return alert("Please fill all inputs!");
       }

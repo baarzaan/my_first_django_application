@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../featuers/authSlice";
+import { selectedUser } from "../featuers/authSlice";
 import { Link } from "react-router-dom";
 import { createComment } from "../featuers/blogSlice";
 
 const CommentForm = ({ blogId }) => {
   const dispacth = useDispatch();
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const [commentBody, setCommentBody] = useState("");
   const [commentMedia, setCommentMedia] = useState(null);
 

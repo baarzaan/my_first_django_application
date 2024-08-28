@@ -1,12 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UpdateUserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated
 
 # View to list all users (for reference)
 class UsersView(APIView):
@@ -66,6 +67,27 @@ class RegisterView(APIView):
                     'tokens': tokens
                 }
                 return Response(response_data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "data": None,
+                "message": "Bad request"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        try:
+            data = request.data
+            print(data)
+            user = request.user
+            serializer = UpdateUserSerializer(user, data=data, partial=True)
+            # print(serializer.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:

@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   registerUser,
+  selectedUser,
   setError,
   setStatus,
-  setUser,
 } from "../../featuers/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
   const dispatch = useDispatch();
   const status = useSelector(setStatus);
-  const user = useSelector(setUser);
+  const user = useSelector(selectedUser);
   const error = useSelector(setError);
   const navigate = useNavigate();
   const [profilePic, setProfilePic] = useState(null);
